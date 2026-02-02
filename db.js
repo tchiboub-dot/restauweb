@@ -1,8 +1,11 @@
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
 const schemaSql = fs.readFileSync(path.join(__dirname, 'schema.sql'), 'utf8');
 
-const DB_FILE = process.env.DB_FILE || './data.sqlite';
+// Use an OS tmp dir on serverless platforms (Vercel) to avoid read-only filesystem issues
+const DB_FILE = process.env.DB_FILE || (process.env.VERCEL || process.env.VERCEL_ENV ? path.join(os.tmpdir(), 'data.sqlite') : path.join(__dirname, 'data.sqlite'));
+
 
 let db = null;
 let using = null; // 'better-sqlite3' or 'sql.js'
@@ -87,16 +90,28 @@ try{
   (async ()=>{
     try{
       const initSqlJs = require('sql.js');
-      const SQL = await initSqlJs({ locateFile: (file) => path.join(__dirname, 'node_modules', 'sql.js', 'dist', file) });
+      // robust locateFile: prefer require.resolve (works better in serverless bundles), fallback to node_modules path
+      const locateFile = (file) => {
+        try{ return require.resolve(`sql.js/dist/${file}`); }catch(e){ return path.join(__dirname, 'node_modules', 'sql.js', 'dist', file); }
+      };
+
+      const SQL = await initSqlJs({ locateFile });
+      // ensure DB_FILE path is resolved (tmp dir on Vercel is used above)
+      const resolvedDbFile = path.resolve(DB_FILE);
       let data = undefined;
-      if(fs.existsSync(DB_FILE)){
-        data = fs.readFileSync(DB_FILE);
+      if(fs.existsSync(resolvedDbFile)){
+        data = fs.readFileSync(resolvedDbFile);
       }
       const instance = data ? new SQL.Database(new Uint8Array(data)) : new SQL.Database();
 
       const persist = ()=>{
-        const exportData = instance.export();
-        fs.writeFileSync(DB_FILE, Buffer.from(exportData));
+        try{
+          const exportData = instance.export();
+          fs.writeFileSync(resolvedDbFile, Buffer.from(exportData));
+        }catch(e){
+          // Don't crash serverless invocation if persist fails; log for debugging
+          console.error('DB persist failed', e);
+        }
       };
 
       function bindNamed(sql, params){
