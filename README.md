@@ -36,3 +36,4 @@ Notes:
 - Rate limiting added to write endpoints (checkout, reservations, reviews).
 - All data persisted in SQLite using prepared statements. Schema in `schema.sql`.
 "# restauweb" 
+# restauweb
