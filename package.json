@@ -1,0 +1,35 @@
+{
+  "name": "web-restau-backend",
+  "version": "1.0.0",
+  "description": "Backend for Maison Élégance demo (Node + Express + SQLite)",
+  "main": "server.js",
+  "scripts": {
+    "dev": "nodemon server.js",
+    "start": "node server.js",
+    "health": "node scripts/health-check.js",
+    "init-db": "node scripts/init-db.js",
+    "clear-reviews": "node scripts/clear-reviews.js",
+    "test": "mocha --exit"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^16.0.0",
+    "express": "^4.18.2",
+    "express-rate-limit": "^6.8.0",
+    "helmet": "^6.0.1",
+    "morgan": "^1.10.0",
+    "zod": "^3.23.2",
+    "sql.js": "^1.8.0"
+  },
+  "optionalDependencies": {
+    "better-sqlite3": "^8.2.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22",
+    "mocha": "^10.2.0",
+    "supertest": "^6.3.3",
+    "chai": "^4.3.8"
+  }
+}

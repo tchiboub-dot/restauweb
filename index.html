@@ -1,0 +1,1602 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="description" content="Site restaurant élégant et interactif : menu, prix, panier, réservation, avis." />
+  <title>Maison Élégance — Restaurant</title>
+<link rel="icon" href="favicon.ico" />
+  <style>
+    :root{
+      --bg:#0b0f14;
+      --panel:#101824;
+      --panel2:#0f1722;
+      --line:rgba(255,255,255,.08);
+      --text:#eaf2ff;
+      --muted:rgba(234,242,255,.75);
+      --muted2:rgba(234,242,255,.6);
+      --accent:#d7b46a;
+      --accent2:#6ad7b4;
+      --danger:#ff5b6e;
+      --ok:#38d48f;
+      --shadow: 0 20px 50px rgba(0,0,0,.45);
+      --radius: 18px;
+      --radius2: 26px;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background:
+        radial-gradient(1200px 800px at 20% -10%, rgba(215,180,106,.18), transparent 50%),
+        radial-gradient(1000px 700px at 95% 0%, rgba(106,215,180,.12), transparent 50%),
+        radial-gradient(900px 700px at 50% 110%, rgba(215,180,106,.08), transparent 55%),
+        var(--bg);
+      color:var(--text);
+      overflow-x:hidden;
+    }
+
+    a{color:inherit;text-decoration:none}
+    button, input, select, textarea{font:inherit}
+    ::selection{background:rgba(215,180,106,.25)}
+
+    .container{max-width:1180px;margin:0 auto;padding:0 18px}
+    .row{display:flex;gap:14px;flex-wrap:wrap}
+    .spacer{height:18px}
+
+    /* Topbar */
+    .topbar{
+      position:sticky; top:0; z-index:50;
+      backdrop-filter: blur(14px);
+      background: linear-gradient(to bottom, rgba(11,15,20,.78), rgba(11,15,20,.32));
+      border-bottom:1px solid var(--line);
+    }
+    .topbar-inner{
+      display:flex; align-items:center; justify-content:space-between;
+      padding:14px 0;
+      gap:12px;
+    }
+    .brand{
+      display:flex; align-items:center; gap:10px;
+      letter-spacing:.2px;
+      min-width:220px;
+    }
+    .logo{
+      width:40px;height:40px;border-radius:14px;
+      background:
+        radial-gradient(12px 12px at 30% 30%, rgba(255,255,255,.55), transparent 60%),
+        linear-gradient(135deg, rgba(215,180,106,.95), rgba(106,215,180,.75));
+      box-shadow: 0 10px 25px rgba(0,0,0,.35);
+    }
+    .brand h1{font-size:14px;margin:0}
+    .brand p{margin:0;font-size:12px;color:var(--muted2)}
+    nav{display:flex; align-items:center; gap:14px;}
+    .navlink{
+      padding:10px 12px;border-radius:14px;
+      color:var(--muted);
+      border:1px solid transparent;
+      transition:.2s ease;
+      font-size:13px;
+    }
+    .navlink:hover{color:var(--text); border-color:var(--line); background:rgba(255,255,255,.03)}
+    .nav-actions{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+    .btn{
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.03);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:14px;
+      cursor:pointer;
+      transition:.2s ease;
+      display:inline-flex; align-items:center; gap:9px;
+      user-select:none;
+      white-space:nowrap;
+    }
+    .btn:hover{transform:translateY(-1px); border-color:rgba(215,180,106,.35); background:rgba(215,180,106,.07)}
+    .btn.primary{
+      background: linear-gradient(135deg, rgba(215,180,106,.95), rgba(106,215,180,.75));
+      border-color: transparent;
+      color:#0b0f14;
+      font-weight:650;
+    }
+    .btn.primary:hover{filter:saturate(1.06); transform:translateY(-1px)}
+    .btn.danger{
+      border-color: rgba(255,91,110,.35);
+      background: rgba(255,91,110,.06);
+    }
+    .icon{width:16px;height:16px;display:inline-block;opacity:.95}
+
+    /* Mobile nav */
+    .burger{display:none}
+    .mobile-drawer{
+      display:none;
+      position:fixed; inset:0; z-index:80;
+      background:rgba(0,0,0,.6);
+      backdrop-filter: blur(8px);
+    }
+    .drawer{
+      position:absolute; right:0; top:0; bottom:0; width:min(420px, 92vw);
+      background: linear-gradient(180deg, rgba(16,24,36,.98), rgba(12,16,22,.98));
+      border-left:1px solid var(--line);
+      box-shadow: var(--shadow);
+      padding:16px;
+      transform: translateX(10px);
+      animation: slideIn .22s ease forwards;
+    }
+    @keyframes slideIn{to{transform:translateX(0)}}
+    .drawer .navlink{display:block; width:100%; margin:8px 0}
+    .drawer-header{display:flex; align-items:center; justify-content:space-between; padding:6px 2px 10px}
+    .close{border:1px solid var(--line); background:transparent; color:var(--text); border-radius:14px; padding:10px 12px; cursor:pointer}
+    .close:hover{background:rgba(255,255,255,.04)}
+
+    /* Hero */
+    .hero{padding:42px 0 20px;}
+    .hero-grid{
+      display:grid;
+      grid-template-columns: 1.25fr .75fr;
+      gap:18px;
+      align-items:stretch;
+    }
+    .hero-card{
+      border:1px solid var(--line);
+      border-radius: var(--radius2);
+      background:
+        radial-gradient(500px 240px at 20% 20%, rgba(215,180,106,.18), transparent 60%),
+        radial-gradient(420px 260px at 90% 30%, rgba(106,215,180,.12), transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
+      box-shadow: var(--shadow);
+      padding:22px;
+      position:relative;
+      overflow:hidden;
+      min-height: 310px;
+    }
+    .hero-card:before{
+      content:"";
+      position:absolute; inset:-2px;
+      background: radial-gradient(700px 300px at 30% 0%, rgba(255,255,255,.06), transparent 55%);
+      pointer-events:none;
+    }
+    .badge{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid rgba(215,180,106,.35);
+      background: rgba(215,180,106,.10);
+      color: var(--text);
+      font-size:12px;
+    }
+    .hero h2{
+      margin:12px 0 8px;
+      font-size:40px;
+      line-height:1.05;
+      letter-spacing:-.6px;
+    }
+    .hero p{
+      margin:0;
+      color:var(--muted);
+      max-width: 60ch;
+      font-size:14.5px;
+      line-height:1.6;
+    }
+    .hero-cta{margin-top:16px; display:flex; gap:10px; flex-wrap:wrap}
+    .hero-meta{
+      display:flex; gap:12px; flex-wrap:wrap;
+      margin-top:16px;
+      color:var(--muted2);
+      font-size:12.5px;
+    }
+    .pill{
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.03);
+      padding:10px 12px;
+      border-radius: 999px;
+      display:inline-flex; gap:8px; align-items:center;
+    }
+
+    /* Sidebar */
+    .side-card{
+      border:1px solid var(--line);
+      border-radius: var(--radius2);
+      background: linear-gradient(180deg, rgba(16,24,36,.75), rgba(12,16,22,.75));
+      box-shadow: var(--shadow);
+      padding:18px;
+      min-height: 310px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      overflow:hidden;
+      position:relative;
+    }
+    .side-card:after{
+      content:"";
+      position:absolute; inset:-80px -60px auto auto;
+      width:220px;height:220px;border-radius:50%;
+      background: radial-gradient(circle, rgba(106,215,180,.18), transparent 55%);
+      filter: blur(2px);
+      pointer-events:none;
+    }
+    .kpis{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+      margin-top:10px;
+    }
+    .kpi{
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.03);
+      border-radius: 16px;
+      padding:12px;
+    }
+    .kpi b{display:block;font-size:18px}
+    .kpi span{color:var(--muted2);font-size:12px}
+
+    section{padding:22px 0}
+    .section-head{
+      display:flex; align-items:flex-end; justify-content:space-between; gap:12px;
+      margin-bottom:12px;
+    }
+    .section-head h3{margin:0;font-size:20px;letter-spacing:-.2px}
+    .section-head p{margin:0;color:var(--muted2);font-size:13px;max-width:62ch}
+
+    .panel{
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.012));
+      box-shadow: 0 14px 40px rgba(0,0,0,.32);
+      overflow:hidden;
+    }
+    .panel-inner{padding:16px}
+
+    /* Controls */
+    .controls{
+      display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between;
+      padding:12px;
+      border-bottom:1px solid var(--line);
+    }
+    .control-left, .control-right{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+    .input{
+      display:flex; align-items:center; gap:8px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.03);
+      border-radius: 14px;
+      padding:10px 12px;
+      min-width: 220px;
+    }
+    .input input{border:0; outline:0; background:transparent; color:var(--text); width:100%;}
+    .select{
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.03);
+      border-radius: 14px;
+      padding:10px 12px;
+      color:var(--text);
+      outline:0;
+      cursor:pointer;
+    }
+    .chip{
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.02);
+      color:var(--muted);
+      padding:9px 10px;
+      border-radius: 999px;
+      cursor:pointer;
+      transition:.2s ease;
+      font-size:12.5px;
+      user-select:none;
+    }
+    .chip:hover{border-color:rgba(215,180,106,.35); color:var(--text); background:rgba(215,180,106,.06)}
+    .chip.active{
+      border-color:rgba(215,180,106,.55);
+      background: rgba(215,180,106,.10);
+      color:var(--text);
+    }
+
+    /* Menu */
+    .menu-grid{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap:14px;
+      padding:14px;
+    }
+    .item{
+      border:1px solid var(--line);
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(16,24,36,.55), rgba(12,16,22,.55));
+      overflow:hidden;
+      position:relative;
+      transition:.2s ease;
+      display:flex;
+      flex-direction:column;
+      min-height: 210px;
+    }
+    .item:hover{transform: translateY(-3px); border-color: rgba(215,180,106,.35)}
+    .thumb{
+      height: 118px;
+      background:
+        radial-gradient(60px 60px at 20% 30%, rgba(255,255,255,.30), transparent 60%),
+        linear-gradient(135deg, rgba(215,180,106,.45), rgba(106,215,180,.22));
+      position:relative;
+    }
+    .thumb:after{
+      content:"";
+      position:absolute; inset:0;
+      background: radial-gradient(120px 80px at 75% 40%, rgba(255,255,255,.10), transparent 60%);
+      opacity:.9;
+    }
+    .tag{
+      position:absolute; top:10px; left:10px;
+      padding:7px 9px;
+      border-radius: 999px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.28);
+      font-size:12px;
+      color:var(--text);
+      backdrop-filter: blur(8px);
+    }
+    .tag.best{border-color:rgba(215,180,106,.45); background: rgba(215,180,106,.14)}
+    .item-body{padding:12px 12px 14px; display:flex; flex-direction:column; gap:8px; flex:1}
+    .item-title{display:flex; align-items:flex-start; justify-content:space-between; gap:10px}
+    .item h4{margin:0;font-size:15px; letter-spacing:-.1px}
+    .price{font-weight:750; color: var(--text)}
+    .desc{margin:0;color:var(--muted2);font-size:12.8px; line-height:1.45}
+    .meta{
+      display:flex; gap:8px; flex-wrap:wrap; align-items:center;
+      margin-top:auto;
+    }
+    .mini{
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.02);
+      padding:6px 8px;
+      border-radius: 999px;
+      font-size:11.5px;
+      color:var(--muted);
+    }
+    .mini.allergen{border-color:rgba(255,91,110,.22); background: rgba(255,91,110,.06)}
+    .item-actions{display:flex; gap:10px; align-items:center; justify-content:space-between; margin-top:8px;}
+    .qty{
+      display:flex; align-items:center; gap:8px;
+      border:1px solid var(--line);
+      border-radius: 14px;
+      padding:6px 8px;
+      background: rgba(255,255,255,.02);
+    }
+    .qty button{
+      border:0; background:transparent; color:var(--text);
+      cursor:pointer; width:28px; height:28px; border-radius:10px;
+    }
+    .qty button:hover{background:rgba(255,255,255,.05)}
+    .qty span{min-width:16px; text-align:center; font-weight:650}
+
+    /* Cart */
+    .cart-grid{
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap:14px;
+      align-items:start;
+    }
+    .cart-list{padding:14px}
+    .cart-row{
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      padding:12px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.02);
+      border-radius: 16px;
+      margin-bottom:10px;
+    }
+    .cart-row:last-child{margin-bottom:0}
+    .cart-left b{display:block}
+    .cart-left small{color:var(--muted2)}
+    .cart-right{display:flex; align-items:center; gap:10px}
+    .trash{
+      border:1px solid rgba(255,91,110,.25);
+      background: rgba(255,91,110,.07);
+      color:var(--text);
+      border-radius: 12px;
+      padding:8px 10px;
+      cursor:pointer;
+    }
+    .trash:hover{filter:saturate(1.1)}
+    .summary{padding:14px}
+    .sum-box{
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.02);
+      border-radius: 18px;
+      padding:14px;
+    }
+    .sum-line{display:flex; justify-content:space-between; gap:10px; padding:8px 0; color:var(--muted)}
+    .sum-line strong{color:var(--text)}
+    .sum-line.total{
+      border-top:1px solid var(--line);
+      margin-top:8px;
+      padding-top:12px;
+      font-size:16px;
+    }
+    .note{font-size:12px; color:var(--muted2); line-height:1.5; margin-top:10px;}
+    .promo{display:flex; gap:10px; margin-top:12px;}
+    .promo input{
+      flex:1; border:1px solid var(--line); border-radius:14px;
+      background: rgba(255,255,255,.03);
+      color:var(--text); padding:10px 12px; outline:0;
+    }
+
+    /* Forms */
+    .form-grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:14px;
+      padding:14px;
+    }
+    .field{
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.02);
+      border-radius: 16px;
+      padding:12px;
+    }
+    .field label{display:block; color:var(--muted2); font-size:12px; margin-bottom:8px}
+    .field input, .field select, .field textarea{
+      width:100%;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.20);
+      border-radius: 14px;
+      padding:10px 12px;
+      color:var(--text);
+      outline:0;
+    }
+    .field textarea{min-height:110px; resize:vertical}
+    .form-actions{display:flex; gap:10px; padding:0 14px 14px}
+    .hint{color:var(--muted2); font-size:12.5px; padding:0 14px 14px}
+
+    /* Reviews */
+    .reviews-grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:14px;
+    }
+    .review-list{padding:14px}
+    .review{
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.02);
+      border-radius: 16px;
+      padding:12px;
+      margin-bottom:10px;
+    }
+    .review:last-child{margin-bottom:0}
+    .review-head{display:flex; align-items:center; justify-content:space-between; gap:10px}
+    .stars{letter-spacing:1px}
+    .review p{margin:8px 0 0; color:var(--muted); font-size:13px; line-height:1.55}
+    .review small{color:var(--muted2)}
+    .empty{
+      color:var(--muted2);
+      font-size:13px;
+      padding:14px;
+      border:1px dashed rgba(255,255,255,.16);
+      border-radius: 16px;
+      background: rgba(255,255,255,.01);
+    }
+
+    /* Gallery */
+    .gallery{
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap:14px;
+    }
+    .gallery-hero{
+      border:1px solid var(--line);
+      border-radius: var(--radius2);
+      overflow:hidden;
+      background:
+        radial-gradient(80px 80px at 20% 30%, rgba(255,255,255,.28), transparent 60%),
+        linear-gradient(135deg, rgba(215,180,106,.35), rgba(106,215,180,.18));
+      min-height: 260px;
+      position:relative;
+    }
+    .gallery-hero .overlay{
+      position:absolute; inset:0;
+      background:
+        radial-gradient(500px 240px at 30% 20%, rgba(0,0,0,.0), rgba(0,0,0,.35)),
+        linear-gradient(to top, rgba(0,0,0,.60), rgba(0,0,0,.05));
+      display:flex;
+      align-items:flex-end;
+      padding:18px;
+    }
+    .gallery-hero h4{margin:0 0 6px; font-size:18px}
+    .gallery-hero p{margin:0; color:rgba(234,242,255,.8); font-size:13px; line-height:1.5}
+    .gallery-grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:14px;
+    }
+    .gbox{
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      overflow:hidden;
+      min-height: 122px;
+      background:
+        radial-gradient(70px 70px at 30% 30%, rgba(255,255,255,.22), transparent 60%),
+        linear-gradient(135deg, rgba(215,180,106,.22), rgba(106,215,180,.12));
+      position:relative;
+    }
+    .gbox:after{
+      content:"";
+      position:absolute; inset:0;
+      background: radial-gradient(260px 140px at 70% 30%, rgba(255,255,255,.08), transparent 60%);
+    }
+
+    /* FAQ */
+    details{
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.02);
+      border-radius: 16px;
+      padding:12px 12px;
+    }
+    details + details{margin-top:10px}
+    summary{cursor:pointer; color:var(--text); font-weight:650}
+    details p{margin:10px 0 0; color:var(--muted); line-height:1.6; font-size:13px}
+
+    /* Footer */
+    footer{
+      padding:30px 0 40px;
+      border-top:1px solid var(--line);
+      margin-top:22px;
+      color:var(--muted2);
+    }
+    .footer-grid{
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap:14px;
+    }
+    .foot-card{
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.02);
+      border-radius: var(--radius2);
+      padding:16px;
+    }
+
+    /* Toast */
+    .toast{
+      position:fixed;
+      left:50%; bottom:18px;
+      transform:translateX(-50%);
+      background: rgba(16,24,36,.92);
+      border:1px solid var(--line);
+      border-radius: 16px;
+      padding:12px 14px;
+      box-shadow: var(--shadow);
+      display:flex; align-items:center; gap:10px;
+      opacity:0; pointer-events:none;
+      transition:.22s ease;
+      z-index:100;
+      max-width:min(560px, 92vw);
+      backdrop-filter: blur(10px);
+    }
+    .toast.show{opacity:1; pointer-events:auto; transform:translateX(-50%) translateY(-2px)}
+    .dot{
+      width:10px;height:10px;border-radius:50%;
+      background: var(--ok);
+      box-shadow: 0 0 0 6px rgba(56,212,143,.12);
+    }
+    .toast b{display:block}
+    .toast small{color:var(--muted2)}
+    .toast .tclose{
+      margin-left:auto;
+      border:1px solid var(--line);
+      background: transparent;
+      color:var(--text);
+      border-radius: 12px;
+      padding:8px 10px;
+      cursor:pointer;
+    }
+    .toast .tclose:hover{background:rgba(255,255,255,.04)}
+
+    /* Small premium animation */
+    .fadeInUp{
+      opacity:0;
+      transform: translateY(10px);
+      animation: fadeInUp .5s ease forwards;
+    }
+    @keyframes fadeInUp{
+      to { opacity:1; transform: translateY(0); }
+    }
+
+    /* Responsive */
+    @media (max-width: 980px){
+      .hero-grid{grid-template-columns: 1fr}
+      .cart-grid{grid-template-columns: 1fr}
+      .menu-grid{grid-template-columns: repeat(2, 1fr)}
+      .reviews-grid{grid-template-columns: 1fr}
+      .gallery{grid-template-columns: 1fr}
+      nav{display:none}
+      .burger{display:inline-flex}
+    }
+    @media (max-width: 600px){
+      .menu-grid{grid-template-columns: 1fr}
+      .form-grid{grid-template-columns: 1fr}
+      .input{min-width: 100%}
+      .topbar-inner{gap:10px}
+      .hero h2{font-size:32px}
+    }
+  </style>
+</head>
+
+<body>
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <a class="brand" href="#home" aria-label="Accueil">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1>Maison Élégance</h1>
+          <p>Cuisine raffinée • Livraison & Réservation</p>
+        </div>
+      </a>
+
+      <nav aria-label="Navigation principale">
+        <a class="navlink" href="#menu">Menu</a>
+        <a class="navlink" href="#commande">Commande</a>
+        <a class="navlink" href="#reservation">Réservation</a>
+        <a class="navlink" href="#avis">Avis</a>
+        <a class="navlink" href="#galerie">Galerie</a>
+        <a class="navlink" href="#faq">FAQ</a>
+        <a class="navlink" href="#contact">Contact</a>
+      </nav>
+
+      <div class="nav-actions">
+        <button class="btn burger" id="openDrawer" aria-label="Ouvrir le menu mobile">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          Menu
+        </button>
+
+        <button class="btn" id="scrollToMenu">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M12 5v14M5 12l7 7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Voir le menu
+        </button>
+
+        <button class="btn primary" id="scrollToReservation">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M8 7V5m8 2V5M4 9h16M6 21h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          Réserver
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Drawer -->
+  <div class="mobile-drawer" id="mobileDrawer" aria-hidden="true">
+    <div class="drawer" role="dialog" aria-modal="true" aria-label="Menu mobile">
+      <div class="drawer-header">
+        <div class="brand" style="gap:10px">
+          <div class="logo" aria-hidden="true"></div>
+          <div>
+            <h1 style="margin:0;font-size:14px">Maison Élégance</h1>
+            <p style="margin:0;font-size:12px;color:var(--muted2)">Navigation</p>
+          </div>
+        </div>
+        <button class="close" id="closeDrawer">Fermer</button>
+      </div>
+      <a class="navlink" href="#menu" data-close-drawer>Menu</a>
+      <a class="navlink" href="#commande" data-close-drawer>Commande</a>
+      <a class="navlink" href="#reservation" data-close-drawer>Réservation</a>
+      <a class="navlink" href="#avis" data-close-drawer>Avis</a>
+      <a class="navlink" href="#galerie" data-close-drawer>Galerie</a>
+      <a class="navlink" href="#faq" data-close-drawer>FAQ</a>
+      <a class="navlink" href="#contact" data-close-drawer>Contact</a>
+      <div class="spacer"></div>
+      <button class="btn primary" style="width:100%" id="drawerReserve">Réserver une table</button>
+    </div>
+  </div>
+
+  <!-- HERO -->
+  <main id="home" class="hero">
+    <div class="container hero-grid">
+      <div class="hero-card fadeInUp">
+        <div class="badge">
+          <span style="width:8px;height:8px;border-radius:50%;background:var(--accent);display:inline-block"></span>
+          Service premium • Produits frais • Options halal & végétariennes
+        </div>
+
+        <h2>Une expérience culinaire<br/>raffinée, simple à commander.</h2>
+        <p>
+          Découvrez notre menu avec prix, filtres et allergènes. Composez votre commande en quelques clics,
+          laissez un avis, ou réservez une table. Design premium, navigation fluide, et interactions modernes.
+        </p>
+
+        <div class="hero-cta">
+          <button class="btn primary" id="ctaOrder">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M6 6h15l-1.5 9h-12L6 6Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+              <path d="M6 6 5 3H2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M9 20a1 1 0 1 0 0-2 1 1 0 0 0 0 2Zm9 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            Commander maintenant
+          </button>
+          <button class="btn" id="ctaGallery">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M4 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7Z" stroke="currentColor" stroke-width="2"/>
+              <path d="m8 13 2-2 4 4 2-2 2 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Voir la galerie
+          </button>
+        </div>
+
+        <div class="hero-meta">
+          <div class="pill">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M12 21s7-4.5 7-11a7 7 0 1 0-14 0c0 6.5 7 11 7 11Z" stroke="currentColor" stroke-width="2"/>
+              <path d="M12 10.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            Centre-ville • Livraison 30–45 min
+          </div>
+          <div class="pill">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M12 8v4l3 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            Lun–Dim • 12:00–23:30
+          </div>
+        </div>
+      </div>
+
+      <aside class="side-card fadeInUp" style="animation-delay:.06s" aria-label="Infos rapides">
+        <div>
+          <h3 style="margin:0 0 6px;font-size:16px;letter-spacing:-.2px">Infos rapides</h3>
+          <p style="margin:0;color:var(--muted);font-size:13px;line-height:1.6">
+            Paiement sur place ou en ligne (démo). Programme fidélité : 1 commande = 1 point.
+          </p>
+
+          <div class="kpis">
+            <div class="kpi">
+              <b id="kpiRating">4.8/5</b>
+              <span>Note moyenne</span>
+            </div>
+            <div class="kpi">
+              <b id="kpiOrders">1 240+</b>
+              <span>Commandes / mois</span>
+            </div>
+            <div class="kpi">
+              <b>Halal</b>
+              <span>Options disponibles</span>
+            </div>
+            <div class="kpi">
+              <b>Végé</b>
+              <span>Menu complet</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="row" style="justify-content:space-between">
+          <a class="btn" href="tel:+212614484871" id="btnCall">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.12.9.33 1.77.62 2.6a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.48-1.21a2 2 0 0 1 2.11-.45c.83.29 1.7.5 2.6.62A2 2 0 0 1 22 16.92Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Appeler
+          </a>
+
+          <button class="btn" id="btnMap">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M9 18 3 21V6l6-3 6 3 6-3v15l-6 3-6-3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+              <path d="M9 3v15M15 6v15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            Itinéraire
+          </button>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <!-- MENU -->
+  <section id="menu">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <h3>Menu & Prix</h3>
+          <p>Recherche, filtres, allergènes, et ajout au panier en 1 clic. Les quantités sont modifiables.</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="controls">
+          <div class="control-left">
+            <div class="input" aria-label="Recherche">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M21 21l-4.3-4.3M10.8 18.6a7.8 7.8 0 1 1 0-15.6 7.8 7.8 0 0 1 0 15.6Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              <input id="search" type="text" placeholder="Rechercher un plat, ex: burger, saumon..." />
+            </div>
+
+            <select class="select" id="category">
+              <option value="all">Toutes catégories</option>
+              <option value="entree">Entrées</option>
+              <option value="plat">Plats</option>
+              <option value="dessert">Desserts</option>
+              <option value="boisson">Boissons</option>
+            </select>
+
+            <select class="select" id="diet">
+              <option value="all">Tous</option>
+              <option value="halal">Halal</option>
+              <option value="vege">Végétarien</option>
+              <option value="sans-gluten">Sans gluten</option>
+            </select>
+          </div>
+
+          <div class="control-right">
+            <div class="row" style="gap:8px">
+              <div class="chip active" data-sort="popular">Populaires</div>
+              <div class="chip" data-sort="priceAsc">Prix ↑</div>
+              <div class="chip" data-sort="priceDesc">Prix ↓</div>
+              <div class="chip" data-sort="rating">Note</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="menu-grid" id="menuGrid" aria-live="polite"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMMANDE -->
+  <section id="commande">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <h3>Commande (Panier)</h3>
+          <p>Total dynamique, code promo (démo), frais de livraison, et validation simulée.</p>
+        </div>
+      </div>
+
+      <div class="cart-grid">
+        <div class="panel">
+          <div class="panel-inner">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px">
+              <div>
+                <b style="font-size:14px">Votre panier</b>
+                <div style="color:var(--muted2);font-size:12.5px;margin-top:4px">Ajoutez des plats depuis le menu.</div>
+              </div>
+              <button class="btn danger" id="clearCart">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M3 6h18M8 6V4h8v2m-1 0v14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                Vider
+              </button>
+            </div>
+
+            <div class="cart-list" id="cartList"></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="summary">
+            <div class="sum-box">
+              <div class="sum-line"><span>Sous-total</span><strong id="subTotal">0.00</strong></div>
+              <div class="sum-line"><span>Livraison</span><strong id="shipping">0.00</strong></div>
+              <div class="sum-line"><span>Remise</span><strong id="discount">-0.00</strong></div>
+              <div class="sum-line total"><span>Total</span><strong id="grandTotal">0.00</strong></div>
+
+              <div class="promo">
+                <input id="promoCode" placeholder="Code promo (ex: ELEGANCE10)" />
+                <button class="btn" id="applyPromo">Appliquer</button>
+              </div>
+
+              <div class="note">
+                Astuce premium : ajoute une section “Favoris” + “Re-commander” pour augmenter les ventes.
+              </div>
+
+              <div class="spacer"></div>
+              <button class="btn primary" style="width:100%" id="checkout">
+                Valider la commande (démo)
+              </button>
+              <div class="hint">Aucune transaction réelle. Tout est simulé côté navigateur.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESERVATION -->
+  <section id="reservation">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <h3>Réservation de table</h3>
+          <p>Formulaire clair avec contraintes (date/heure), note spéciale, et confirmation instantanée.</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="form-grid">
+          <div class="field">
+            <label>Nom complet</label>
+            <input id="rName" placeholder="Ex: Ahmed El Amrani" />
+          </div>
+          <div class="field">
+            <label>Téléphone</label>
+            <input id="rPhone" placeholder="Ex: +212 614484871" />
+          </div>
+          <div class="field">
+            <label>Date</label>
+            <input id="rDate" type="date" />
+          </div>
+          <div class="field">
+            <label>Heure</label>
+            <select id="rTime">
+              <option>12:00</option><option>13:00</option><option>14:00</option>
+              <option>19:00</option><option>20:00</option><option>21:00</option><option>22:00</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Nombre de personnes</label>
+            <select id="rPeople">
+              <option>1</option><option>2</option><option>3</option><option>4</option>
+              <option>5</option><option>6</option><option>7</option><option>8</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Préférence</label>
+            <select id="rPref">
+              <option>À l'intérieur</option>
+              <option>Terrasse</option>
+              <option>Près de la fenêtre</option>
+              <option>Table calme</option>
+            </select>
+          </div>
+          <div class="field" style="grid-column:1/-1">
+            <label>Note / occasion spéciale</label>
+            <textarea id="rNote" placeholder="Ex: anniversaire, allergie, demande spéciale..."></textarea>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn primary" id="submitReservation">Confirmer la réservation</button>
+          <button class="btn" id="resetReservation">Réinitialiser</button>
+        </div>
+        <div class="hint">Idée : quand tu ajoutes un back-end, tu peux bloquer les horaires complets en temps réel.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- AVIS -->
+  <section id="avis">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <h3>Avis & Notes</h3>
+          <p>Les avis sont sauvegardés dans le navigateur (localStorage) pour simuler un vrai site.</p>
+        </div>
+      </div>
+
+      <div class="reviews-grid">
+        <div class="panel">
+          <div class="panel-inner">
+            <b style="font-size:14px">Laisser un avis</b>
+            <div class="spacer"></div>
+
+            <div class="field">
+              <label>Votre nom</label>
+              <input id="revName" placeholder="Ex: Sara" />
+            </div>
+
+            <div class="field" style="margin-top:12px">
+              <label>Note</label>
+              <select id="revRating">
+                <option value="5">★★★★★ (5)</option>
+                <option value="4">★★★★☆ (4)</option>
+                <option value="3">★★★☆☆ (3)</option>
+                <option value="2">★★☆☆☆ (2)</option>
+                <option value="1">★☆☆☆☆ (1)</option>
+              </select>
+            </div>
+
+            <div class="field" style="margin-top:12px">
+              <label>Commentaire</label>
+              <textarea id="revText" placeholder="Partagez votre expérience..."></textarea>
+            </div>
+
+            <div class="spacer"></div>
+            <button class="btn primary" id="submitReview">Publier</button>
+            <button class="btn danger" id="clearReviews" style="margin-left:8px">Effacer</button>
+
+            <div class="hint">Version pro : tu peux activer “avis vérifié” quand le client commande vraiment.</div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-inner">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+              <div>
+                <b style="font-size:14px">Avis récents</b>
+                <div style="color:var(--muted2);font-size:12.5px;margin-top:4px">
+                  Moyenne : <span id="avgStars">—</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="spacer"></div>
+            <div class="review-list" id="reviewList"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- GALERIE -->
+  <section id="galerie">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <h3>Galerie & Ambiance</h3>
+          <p>Ces blocs peuvent être remplacés facilement par tes vraies images (photos du restaurant).</p>
+        </div>
+      </div>
+
+      <div class="gallery">
+        <div class="gallery-hero">
+          <div class="overlay">
+            <div>
+              <h4>Ambiance chaleureuse & service soigné</h4>
+              <p>Un design qui met en avant la qualité, l’expérience client et la confiance.</p>
+              <div class="row" style="margin-top:10px">
+                <span class="mini">Musique douce</span>
+                <span class="mini">Espace famille</span>
+                <span class="mini">Service premium</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="gallery-grid">
+          <div class="gbox" aria-hidden="true"></div>
+          <div class="gbox" aria-hidden="true"></div>
+          <div class="gbox" aria-hidden="true"></div>
+          <div class="gbox" aria-hidden="true"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <h3>FAQ</h3>
+          <p>Réponses rapides pour rassurer les clients et augmenter les commandes.</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-inner">
+          <details open>
+            <summary>Proposez-vous des options halal et végétariennes ?</summary>
+            <p>Oui. Plusieurs plats sont halal et nous avons des options végétariennes. Les allergènes sont affichés sur certains plats.</p>
+          </details>
+          <details>
+            <summary>Quels sont les délais de livraison ?</summary>
+            <p>En général, 30 à 45 minutes selon la distance et l’affluence.</p>
+          </details>
+          <details>
+            <summary>Puis-je modifier ma réservation ?</summary>
+            <p>Oui. Appelez-nous et nous ajusterons votre réservation si possible.</p>
+          </details>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <h3>Contact</h3>
+          <p>Besoin d’aide ? Appelez ou lancez l’itinéraire.</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-inner">
+          <div class="row" style="justify-content:space-between;align-items:center">
+            <div>
+              <b style="font-size:14px;display:block;margin-bottom:6px">Maison Élégance</b>
+              <div style="color:var(--muted2);font-size:13px;line-height:1.6">
+                Téléphone : <span style="color:var(--text);font-weight:650">+212 614484871</span><br/>
+                Adresse : <span id="addrText"></span>
+              </div>
+            </div>
+
+            <div class="row">
+              <a class="btn" href="tel:+212614484871">
+                Appeler
+              </a>
+              <button class="btn primary" id="btnMap2">Itinéraire</button>
+            </div>
+          </div>
+
+          <div class="spacer"></div>
+          <div style="color:var(--muted2);font-size:12.5px">
+            Conseil : ajoute plus tard un formulaire contact + WhatsApp Business + Google Reviews.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container footer-grid">
+      <div class="foot-card">
+        <b style="font-size:14px">Maison Élégance</b>
+        <p style="margin:10px 0 0; color:var(--muted2); line-height:1.6; font-size:13px">
+          Démo front-end premium : menu, panier, réservation et avis.  
+          Idéal pour présenter ton projet et ensuite connecter un vrai back-end.
+        </p>
+      </div>
+      <div class="foot-card">
+        <b style="font-size:14px">Horaires</b>
+        <p style="margin:10px 0 0; color:var(--muted2); line-height:1.6; font-size:13px">
+          Lun–Dim : 12:00 – 23:30<br/>
+          Livraison : 30–45 min
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Toast -->
+  <div class="toast" id="toast" role="status" aria-live="polite">
+    <div class="dot" aria-hidden="true"></div>
+    <div>
+      <b id="toastTitle">OK</b>
+      <small id="toastMsg">Action effectuée.</small>
+    </div>
+    <button class="tclose" id="toastClose">Fermer</button>
+  </div>
+
+  <script>
+    // =========================
+    // CONFIG (NUM + ITINERAIRE)
+    // =========================
+    const RESTO_NAME = "Maison Élégance";
+    const RESTO_PHONE = "+212614484871";
+    const RESTO_ADDRESS = "Centre-ville, Fès, Maroc"; // <- change si tu veux
+    // Option GPS (si tu connais la position exacte)
+    // const RESTO_LAT = 34.0331;
+    // const RESTO_LNG = -5.0003;
+
+    // =========================
+    // DATA MENU (DEMO)
+    // =========================
+    const menuItems = [
+      {id:1, name:"Burger Gourmet", category:"plat", diet:"halal", price:69, rating:4.8, popular:98, desc:"Pain brioché, steak premium, sauce maison.", tags:["Halal"], allergen:"Gluten"},
+      {id:2, name:"Saumon Signature", category:"plat", diet:"sans-gluten", price:95, rating:4.7, popular:80, desc:"Saumon grillé, légumes croquants.", tags:["Sans gluten"], allergen:"Poisson"},
+      {id:3, name:"Salade César Végé", category:"entree", diet:"vege", price:45, rating:4.6, popular:72, desc:"Croquante, légère, sauce délicate.", tags:["Végé"], allergen:"Lait"},
+      {id:4, name:"Soupe du Chef", category:"entree", diet:"all", price:35, rating:4.5, popular:60, desc:"Recette chaude, parfaite pour commencer.", tags:["Chaud"], allergen:"—"},
+      {id:5, name:"Tiramisu Maison", category:"dessert", diet:"all", price:40, rating:4.9, popular:110, desc:"Crème onctueuse, cacao intense.", tags:["Best"], allergen:"Lait"},
+      {id:6, name:"Cheesecake Vanille", category:"dessert", diet:"all", price:42, rating:4.7, popular:90, desc:"Texture premium, base biscuit.", tags:["Dessert"], allergen:"Gluten"},
+      {id:7, name:"Jus Detox", category:"boisson", diet:"all", price:28, rating:4.4, popular:55, desc:"Frais, énergisant, 100% naturel.", tags:["Fresh"], allergen:"—"},
+      {id:8, name:"Mocktail Élégance", category:"boisson", diet:"all", price:34, rating:4.6, popular:75, desc:"Boisson signature, menthe & citron.", tags:["Signature"], allergen:"—"},
+      {id:9, name:"Pâtes Alfredo Végé", category:"plat", diet:"vege", price:78, rating:4.6, popular:70, desc:"Sauce crémeuse, parmesan, champignons.", tags:["Végé"], allergen:"Gluten"},
+    ];
+
+    // =========================
+    // STATE
+    // =========================
+    let cart = JSON.parse(localStorage.getItem("cart_elegance") || "{}");
+    let currentSort = "popular";
+    let promoApplied = null;
+
+    // =========================
+    // UTILS
+    // =========================
+    const money = (v)=> `${Number(v).toFixed(2)} MAD`;
+    const qs = (s)=> document.querySelector(s);
+
+    // =========================
+    // TOAST
+    // =========================
+    const toastEl = qs("#toast");
+    const toastTitle = qs("#toastTitle");
+    const toastMsg = qs("#toastMsg");
+    let toastTimer = null;
+
+    function toast(title, msg){
+      toastTitle.textContent = title;
+      toastMsg.textContent = msg;
+      toastEl.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(()=> toastEl.classList.remove("show"), 3200);
+    }
+
+    qs("#toastClose").addEventListener("click", ()=> toastEl.classList.remove("show"));
+
+    // =========================
+    // ITINERAIRE (GOOGLE MAPS)
+    // =========================
+    function openDirections(){
+      const url = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(RESTO_ADDRESS)}&travelmode=driving`;
+      window.open(url, "_blank", "noopener,noreferrer");
+    }
+
+    // =========================
+    // DRAWER MOBILE
+    // =========================
+    const drawerOverlay = qs("#mobileDrawer");
+    qs("#openDrawer").addEventListener("click", ()=>{
+      drawerOverlay.style.display = "block";
+      drawerOverlay.setAttribute("aria-hidden","false");
+    });
+    qs("#closeDrawer").addEventListener("click", closeDrawer);
+    drawerOverlay.addEventListener("click", (e)=>{
+      if(e.target === drawerOverlay) closeDrawer();
+    });
+    document.querySelectorAll("[data-close-drawer]").forEach(a=>{
+      a.addEventListener("click", closeDrawer);
+    });
+    function closeDrawer(){
+      drawerOverlay.style.display = "none";
+      drawerOverlay.setAttribute("aria-hidden","true");
+    }
+    qs("#drawerReserve").addEventListener("click", ()=>{
+      closeDrawer();
+      scrollToId("reservation");
+    });
+
+    // =========================
+    // SCROLL
+    // =========================
+    function scrollToId(id){
+      const el = document.getElementById(id);
+      if(!el) return;
+      el.scrollIntoView({behavior:"smooth", block:"start"});
+    }
+    qs("#scrollToMenu").addEventListener("click", ()=> scrollToId("menu"));
+    qs("#scrollToReservation").addEventListener("click", ()=> scrollToId("reservation"));
+    qs("#ctaOrder").addEventListener("click", ()=> scrollToId("menu"));
+    qs("#ctaGallery").addEventListener("click", ()=> scrollToId("galerie"));
+
+    // =========================
+    // MENU RENDER
+    // =========================
+    function getFiltered(){
+      const search = (qs("#search").value || "").toLowerCase().trim();
+      const cat = qs("#category").value;
+      const diet = qs("#diet").value;
+
+      let items = [...menuItems];
+
+      if(search){
+        items = items.filter(i =>
+          i.name.toLowerCase().includes(search) ||
+          i.desc.toLowerCase().includes(search)
+        );
+      }
+      if(cat !== "all") items = items.filter(i=> i.category === cat);
+      if(diet !== "all") items = items.filter(i=> i.diet === diet);
+
+      if(currentSort === "popular") items.sort((a,b)=> b.popular - a.popular);
+      if(currentSort === "priceAsc") items.sort((a,b)=> a.price - b.price);
+      if(currentSort === "priceDesc") items.sort((a,b)=> b.price - a.price);
+      if(currentSort === "rating") items.sort((a,b)=> b.rating - a.rating);
+
+      return items;
+    }
+
+    function renderMenu(){
+      const grid = qs("#menuGrid");
+      const items = getFiltered();
+
+      grid.innerHTML = items.map(item=>{
+        const qty = cart[item.id] || 0;
+        const best = item.tags.includes("Best");
+        const halal = item.diet === "halal";
+        const vege = item.diet === "vege";
+
+        return `
+          <article class="item">
+            <div class="thumb">
+              <span class="tag ${best ? "best" : ""}">${best ? "Best choice" : item.category.toUpperCase()}</span>
+            </div>
+
+            <div class="item-body">
+              <div class="item-title">
+                <div>
+                  <h4>${item.name}</h4>
+                  <div style="color:var(--muted2);font-size:12px;margin-top:3px">⭐ ${item.rating.toFixed(1)} • ${item.popular}+ commandes</div>
+                </div>
+                <div class="price">${money(item.price)}</div>
+              </div>
+
+              <p class="desc">${item.desc}</p>
+
+              <div class="meta">
+                ${halal ? `<span class="mini">Halal</span>` : ""}
+                ${vege ? `<span class="mini">Végétarien</span>` : ""}
+                ${item.diet === "sans-gluten" ? `<span class="mini">Sans gluten</span>` : ""}
+                ${item.allergen && item.allergen !== "—" ? `<span class="mini allergen">Allergène: ${item.allergen}</span>` : ""}
+              </div>
+
+              <div class="item-actions">
+                <div class="qty">
+                  <button onclick="decItem(${item.id})">−</button>
+                  <span>${qty}</span>
+                  <button onclick="incItem(${item.id})">+</button>
+                </div>
+
+                <button class="btn primary" onclick="quickAdd(${item.id})">
+                  Ajouter
+                </button>
+              </div>
+            </div>
+          </article>
+        `;
+      }).join("");
+
+      if(items.length === 0){
+        grid.innerHTML = `<div class="empty" style="grid-column:1/-1">Aucun plat trouvé. Essayez un autre filtre.</div>`;
+      }
+    }
+
+    // Expose functions globally
+    window.incItem = (id)=>{
+      cart[id] = (cart[id] || 0) + 1;
+      saveCart();
+      renderMenu();
+      renderCart();
+    }
+    window.decItem = (id)=>{
+      cart[id] = Math.max(0, (cart[id] || 0) - 1);
+      if(cart[id] === 0) delete cart[id];
+      saveCart();
+      renderMenu();
+      renderCart();
+    }
+    window.quickAdd = (id)=>{
+      cart[id] = (cart[id] || 0) + 1;
+      saveCart();
+      renderMenu();
+      renderCart();
+      toast("Ajouté au panier", "Plat ajouté avec succès.");
+      scrollToId("commande");
+    }
+
+    function saveCart(){
+      localStorage.setItem("cart_elegance", JSON.stringify(cart));
+    }
+
+    // =========================
+    // CART RENDER
+    // =========================
+    function cartItems(){
+      const entries = Object.entries(cart).map(([id, qty])=>{
+        const item = menuItems.find(i=> i.id === Number(id));
+        return item ? {...item, qty} : null;
+      }).filter(Boolean);
+      return entries;
+    }
+
+    function renderCart(){
+      const list = qs("#cartList");
+      const items = cartItems();
+
+      if(items.length === 0){
+        list.innerHTML = `<div class="empty">Panier vide. Ajoutez des plats depuis le menu.</div>`;
+      }else{
+        list.innerHTML = items.map(i=>{
+          return `
+            <div class="cart-row">
+              <div class="cart-left">
+                <b>${i.name}</b>
+                <small>${money(i.price)} • Quantité: ${i.qty}</small>
+              </div>
+              <div class="cart-right">
+                <span class="mini">${money(i.price * i.qty)}</span>
+                <button class="trash" onclick="removeItem(${i.id})">Supprimer</button>
+              </div>
+            </div>
+          `;
+        }).join("");
+      }
+
+      const sub = items.reduce((s,i)=> s + i.price*i.qty, 0);
+      const shipping = sub > 0 ? (sub >= 200 ? 0 : 15) : 0;
+
+      let discount = 0;
+      if(promoApplied === "ELEGANCE10" && sub > 0){
+        discount = sub * 0.10;
+      }
+
+      qs("#subTotal").textContent = money(sub);
+      qs("#shipping").textContent = money(shipping);
+      qs("#discount").textContent = `-${money(discount)}`;
+      qs("#grandTotal").textContent = money(Math.max(0, sub + shipping - discount));
+    }
+
+    window.removeItem = (id)=>{
+      delete cart[id];
+      saveCart();
+      renderMenu();
+      renderCart();
+      toast("Panier", "Article supprimé.");
+    }
+
+    qs("#clearCart").addEventListener("click", ()=>{
+      cart = {};
+      promoApplied = null;
+      qs("#promoCode").value = "";
+      saveCart();
+      renderMenu();
+      renderCart();
+      toast("Panier vidé", "Votre panier est maintenant vide.");
+    });
+
+    qs("#applyPromo").addEventListener("click", ()=>{
+      const code = (qs("#promoCode").value || "").trim().toUpperCase();
+      if(code === "ELEGANCE10"){
+        promoApplied = "ELEGANCE10";
+        toast("Code promo", "Remise de 10% appliquée.");
+      }else{
+        promoApplied = null;
+        toast("Code promo", "Code invalide (essayez : ELEGANCE10).");
+      }
+      renderCart();
+    });
+
+    qs("#checkout").addEventListener("click", ()=>{
+      if(cartItems().length === 0){
+        toast("Commande", "Votre panier est vide.");
+        return;
+      }
+      toast("Commande validée", "Démo réussie. Paiement simulé.");
+    });
+
+    // =========================
+    // RESERVATION
+    // =========================
+    function setMinDateToday(){
+      const d = new Date();
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth()+1).padStart(2,"0");
+      const dd = String(d.getDate()).padStart(2,"0");
+      qs("#rDate").min = `${yyyy}-${mm}-${dd}`;
+      qs("#rDate").value = `${yyyy}-${mm}-${dd}`;
+    }
+
+    qs("#submitReservation").addEventListener("click", ()=>{
+      const name = qs("#rName").value.trim();
+      const phone = qs("#rPhone").value.trim();
+      const date = qs("#rDate").value;
+      const time = qs("#rTime").value;
+      const people = qs("#rPeople").value;
+
+      if(!name || !phone){
+        toast("Réservation", "Veuillez remplir votre nom et téléphone.");
+        return;
+      }
+      toast("Réservation confirmée", `${name} • ${people} pers • ${date} à ${time}`);
+    });
+
+    qs("#resetReservation").addEventListener("click", ()=>{
+      qs("#rName").value = "";
+      qs("#rPhone").value = "";
+      qs("#rNote").value = "";
+      qs("#rPeople").value = "2";
+      qs("#rPref").value = "À l'intérieur";
+      setMinDateToday();
+      toast("Réservation", "Formulaire réinitialisé.");
+    });
+
+    // =========================
+    // REVIEWS
+    // =========================
+    function loadReviews(){
+      return JSON.parse(localStorage.getItem("reviews_elegance") || "[]");
+    }
+    function saveReviews(revs){
+      localStorage.setItem("reviews_elegance", JSON.stringify(revs));
+    }
+
+    function renderReviews(){
+      const list = qs("#reviewList");
+      const revs = loadReviews();
+
+      if(revs.length === 0){
+        list.innerHTML = `<div class="empty">Aucun avis pour l’instant. Soyez le premier !</div>`;
+        qs("#avgStars").textContent = "—";
+        return;
+      }
+
+      const avg = revs.reduce((s,r)=> s + r.rating, 0) / revs.length;
+      qs("#avgStars").textContent = `${avg.toFixed(1)} / 5`;
+
+      list.innerHTML = revs.slice().reverse().map(r=>{
+        const stars = "★★★★★".slice(0, r.rating) + "☆☆☆☆☆".slice(0, 5-r.rating);
+        return `
+          <div class="review">
+            <div class="review-head">
+              <b>${r.name}</b>
+              <span class="stars">${stars}</span>
+            </div>
+            <small>${r.date}</small>
+            <p>${r.text}</p>
+          </div>
+        `;
+      }).join("");
+    }
+
+    qs("#submitReview").addEventListener("click", ()=>{
+      const name = qs("#revName").value.trim();
+      const rating = Number(qs("#revRating").value);
+      const text = qs("#revText").value.trim();
+
+      if(!name || !text){
+        toast("Avis", "Veuillez saisir votre nom et un commentaire.");
+        return;
+      }
+
+      const d = new Date();
+      const date = d.toLocaleDateString("fr-FR", {year:"numeric", month:"short", day:"2-digit"});
+
+      const revs = loadReviews();
+      revs.push({name, rating, text, date});
+      saveReviews(revs);
+
+      qs("#revName").value = "";
+      qs("#revText").value = "";
+      qs("#revRating").value = "5";
+
+      toast("Merci !", "Votre avis a été ajouté.");
+      renderReviews();
+    });
+
+    qs("#clearReviews").addEventListener("click", ()=>{
+      localStorage.removeItem("reviews_elegance");
+      toast("Avis", "Avis effacés (localStorage).");
+      renderReviews();
+    });
+
+    // =========================
+    // SORT CHIPS
+    // =========================
+    document.querySelectorAll(".chip").forEach(chip=>{
+      chip.addEventListener("click", ()=>{
+        document.querySelectorAll(".chip").forEach(c=> c.classList.remove("active"));
+        chip.classList.add("active");
+        currentSort = chip.dataset.sort;
+        renderMenu();
+      });
+    });
+
+    // =========================
+    // EVENTS
+    // =========================
+    qs("#search").addEventListener("input", renderMenu);
+    qs("#category").addEventListener("change", renderMenu);
+    qs("#diet").addEventListener("change", renderMenu);
+
+    qs("#btnMap").addEventListener("click", ()=>{
+      toast("Itinéraire", "Ouverture de Google Maps...");
+      openDirections();
+    });
+    qs("#btnMap2").addEventListener("click", ()=>{
+      toast("Itinéraire", "Ouverture de Google Maps...");
+      openDirections();
+    });
+
+    // =========================
+    // INIT
+    // =========================
+    function init(){
+      qs("#addrText").textContent = RESTO_ADDRESS;
+      setMinDateToday();
+      renderMenu();
+      renderCart();
+      renderReviews();
+    }
+    init();
+  </script>
+</body>
+</html>
+ 
