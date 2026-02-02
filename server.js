@@ -18,14 +18,16 @@ app.use(helmet({ contentSecurityPolicy: false }));
 app.use(express.json());
 app.use(morgan('tiny'));
 
-// Rate limiters for write endpoints
-const limiter = rateLimit({ windowMs: 60*1000, max: 6, message: {error:{message:'Too many requests', code:'RATE_LIMIT'}} });
+// Rate limiters for write endpoints (separate instances so limits don't bleed across routes)
+const limiterOrders = rateLimit({ windowMs: 60*1000, max: 6, message: {error:{message:'Too many requests', code:'RATE_LIMIT'}} });
+const limiterReservations = rateLimit({ windowMs: 60*1000, max: 6, message: {error:{message:'Too many requests', code:'RATE_LIMIT'}} });
+const limiterReviews = rateLimit({ windowMs: 60*1000, max: 6, message: {error:{message:'Too many requests', code:'RATE_LIMIT'}} });
 
 // Routes
 app.use('/api/menu', menuRoutes);
-app.use('/api/orders', limiter, ordersRoutes);
-app.use('/api/reservations', limiter, reservationsRoutes);
-app.use('/api/reviews', limiter, reviewsRoutes);
+app.use('/api/orders', limiterOrders, ordersRoutes);
+app.use('/api/reservations', limiterReservations, reservationsRoutes);
+app.use('/api/reviews', limiterReviews, reviewsRoutes);
 app.use('/api/kpis', kpisRoutes);
 
 // Health
